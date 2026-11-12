@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "127.0.0.1:${HOST_PORT:-80}:8080"
+    environment:
+      DATA_DIR: /data
+      PORT: "8080"
+    volumes:
+      - audio-data:/data
+    init: true
+    stop_grace_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  test:
+    profiles: ["test"]
+    build:
+      context: .
+      target: development
+    command: ["./gradlew", "test", "--no-daemon"]
+    volumes:
+      - gradle-cache:/root/.gradle
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  audio-data:
+  gradle-cache:
